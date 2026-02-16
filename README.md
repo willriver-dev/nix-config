@@ -1,193 +1,200 @@
 # NixOS Multi-Host Configuration
 
-Cau hinh NixOS dung Nix Flakes cho nhieu may, phuc vu backend development.
+NixOS configuration using Nix Flakes for multiple machines, designed for backend development.
 
-## Cac host
+## Hosts
 
-| Host | Kien truc | Mo ta |
-|------|-----------|-------|
+| Host | Architecture | Description |
+|------|--------------|-------------|
 | `wsl` | x86_64-linux | Windows Subsystem for Linux (headless) |
 | `laptop` | x86_64-linux | ThinkPad E14 Gen 7 AMD (Niri + GUI) |
-| `vm-fusion` | aarch64-linux | VMware Fusion tren macOS M1 (Niri + GUI) |
+| `vm-fusion` | aarch64-linux | VMware Fusion on macOS M1 (Niri + GUI) |
 
-## Cai dat
+## Installation
 
-### Buoc 1: Cai NixOS
+### Step 1: Install NixOS
 
-- **WSL**: Tai NixOS-WSL tu [nix-community/NixOS-WSL](https://github.com/nix-community/NixOS-WSL)
-- **Laptop/VM**: Cai NixOS tu ISO, chon cai dat toi thieu (minimal)
+- **WSL**: Download NixOS-WSL from [nix-community/NixOS-WSL](https://github.com/nix-community/NixOS-WSL)
+- **Laptop/VM**: Install NixOS from ISO, choose minimal installation
 
-### Buoc 2: Clone repo
+### Step 2: Clone repository
 
 ```bash
 git clone <repo-url> ~/workspace/nixos-config
 cd ~/workspace/nixos-config
 ```
 
-### Buoc 3: Cau hinh cho tung may
+### Step 3: Configure for each machine
 
-#### Thay thong tin Git ca nhan
+#### Update personal Git information
 
-Sua file `modules/user/git.nix`:
+Edit the file `modules/user/git.nix`:
 
 ```nix
-userName = "Ten cua ban";
-userEmail = "email@cua-ban.com";
+userName = "Your Name";
+userEmail = "your@email.com";
 ```
 
-#### Thay hardware config (chi cho laptop va vm-fusion)
+#### Replace hardware config (laptop and vm-fusion only)
 
-Chay lenh sau tren may thuc te de lay cau hinh phan cung:
+Run the following command on the actual machine to get hardware configuration:
 
 ```bash
 sudo nixos-generate-config --show-hardware-config > ~/hardware.nix
 ```
 
-Sau do copy noi dung vao:
+Then copy the content to:
 - Laptop: `hosts/laptop/hardware.nix`
 - VM Fusion: `hosts/vm-fusion/hardware.nix`
 
-### Buoc 4: Build va ap dung
+### Step 4: Build and apply
+
+**Note: All commands below should be run from the `nixos` directory (not the repository root).**
 
 ```bash
-# Cho WSL
-sudo nixos-rebuild switch --flake ~/workspace/nixos-config#wsl
+# For WSL
+cd ~/workspace/nixos-config/nixos
+sudo nixos-rebuild switch --flake .#wsl
 
-# Cho Laptop (ThinkPad E14 Gen 7 AMD)
-sudo nixos-rebuild switch --flake ~/workspace/nixos-config#laptop
+# For Laptop (ThinkPad E14 Gen 7 AMD)
+cd ~/workspace/nixos-config/nixos
+sudo nixos-rebuild switch --flake .#laptop
 
-# Cho VM Fusion (macOS M1)
-sudo nixos-rebuild switch --flake ~/workspace/nixos-config#vm-fusion
+# For VM Fusion (macOS M1)
+cd ~/workspace/nixos-config/nixos
+sudo nixos-rebuild switch --flake .#vm-fusion
 ```
 
-### Buoc 5: Sau khi build lan dau
+### Step 5: After first build
 
-Setup Rust toolchain (rustup duoc cai san, can khoi tao):
+Setup Rust toolchain (rustup is pre-installed, needs initialization):
 
 ```bash
 rustup default stable
 rustup component add rust-analyzer
 ```
 
-## Cac lenh tat (aliases)
+## Shell Aliases
 
-Sau khi build thanh cong, ban co the dung cac alias sau:
+After successful build, you can use the following aliases:
 
-| Alias | Lenh |
-|-------|------|
+| Alias | Command |
+|-------|---------|
 | `rebuild` | `sudo nixos-rebuild switch --flake ...#<host>` |
-| `update` | `nix flake update` - cap nhat tat ca flake inputs |
-| `ll` | `eza -la` - liet ke file chi tiet |
-| `ls` | `eza` - liet ke file |
-| `cat` | `bat` - xem file co syntax highlight |
-| `tree` | `eza --tree` - cay thu muc |
-| `dps` | `docker ps` - xem container dang chay |
+| `update` | `nix flake update` - update all flake inputs |
+| `ll` | `eza -la` - detailed file listing |
+| `ls` | `eza` - list files |
+| `cat` | `bat` - view files with syntax highlighting |
+| `tree` | `eza --tree` - directory tree |
+| `dps` | `docker ps` - view running containers |
 | `dco` | `docker compose` |
 
-## Cap nhat he thong
+## System Updates
+
+**Note: Run these commands from the `nixos` directory.**
 
 ```bash
-# Cap nhat tat ca flake inputs (nixpkgs, home-manager, niri, ...)
+# Update all flake inputs (nixpkgs, home-manager, niri, ...)
+cd ~/workspace/nixos-config/nixos
 update
 
-# Ap dung thay doi
+# Apply changes
 rebuild
 ```
 
-Hoac thu cong:
+Or manually:
 
 ```bash
-nix flake update --flake ~/workspace/nixos-config
-sudo nixos-rebuild switch --flake ~/workspace/nixos-config#<host>
+cd ~/workspace/nixos-config/nixos
+nix flake update
+sudo nixos-rebuild switch --flake .#<host>
 ```
 
-## Cau truc thu muc
+## Directory Structure
 
 ```
 nixos-config/
-├── flake.nix                     # Diem vao: dinh nghia inputs va 3 host
+├── flake.nix                     # Entry point: defines inputs and 3 hosts
 ├── hosts/
-│   ├── common.nix                # Cau hinh chung (locale, user, docker, nix)
-│   ├── wsl/default.nix           # Chi rieng cho WSL
+│   ├── common.nix                # Common configuration (locale, user, docker, nix)
+│   ├── wsl/default.nix           # WSL-specific configuration
 │   ├── laptop/
-│   │   ├── default.nix           # ThinkPad: AMD, pin, bluetooth, GUI
-│   │   └── hardware.nix          # Phan cung (can thay bang nixos-generate-config)
+│   │   ├── default.nix           # ThinkPad: AMD, battery, bluetooth, GUI
+│   │   └── hardware.nix          # Hardware config (replace with nixos-generate-config)
 │   └── vm-fusion/
 │       ├── default.nix           # VM: VMware guest tools, GUI
-│       └── hardware.nix          # Phan cung (can thay bang nixos-generate-config)
+│       └── hardware.nix          # Hardware config (replace with nixos-generate-config)
 ├── modules/
 │   ├── system/
 │   │   ├── docker.nix            # Docker daemon
-│   │   ├── nix-settings.nix      # Flakes, GC, mirror Trung Quoc
-│   │   └── gui/                  # Chi cho host co GUI
+│   │   ├── nix-settings.nix      # Flakes, GC, China mirrors
+│   │   └── gui/                  # GUI-enabled hosts only
 │   │       ├── niri.nix          # Niri compositor + greetd
 │   │       ├── audio.nix         # PipeWire
 │   │       └── fonts.nix         # Nerd Fonts
 │   └── user/
-│       ├── default.nix           # Cong cu CLI co ban
+│       ├── default.nix           # Basic CLI tools
 │       ├── shell.nix             # Bash + aliases
 │       ├── editors.nix           # Helix, Neovim, Vim
 │       ├── dev-tools.nix         # Node.js, Go, Python, Rust, C/C++
 │       ├── git.nix               # Git + delta + GitHub CLI
-│       ├── direnv.nix            # direnv cho per-project devShell
-│       └── gui/                  # Chi cho host co GUI
-│           ├── niri.nix          # Phim tat, layout, waybar
+│       ├── direnv.nix            # direnv for per-project devShell
+│       └── gui/                  # GUI-enabled hosts only
+│           ├── niri.nix          # Keybindings, layout, waybar
 │           ├── terminals.nix     # Alacritty, Kitty, Ghostty
 │           └── firefox.nix       # Firefox
 ```
 
-## Cong cu da cai san
+## Pre-installed Tools
 
-### Ngon ngu lap trinh
+### Programming Languages
 - **Node.js 22** + TypeScript + pnpm
 - **Go** + gopls + golangci-lint + delve
 - **Python 3.12** + pip + virtualenv + pyright + ruff
-- **Rust** (via rustup) - can chay `rustup default stable` lan dau
+- **Rust** (via rustup) - run `rustup default stable` after first boot
 - **C/C++** - gcc, cmake, clang-tools (clangd), gdb
 
-### Editor
-- **Helix** (editor mac dinh, `$EDITOR=hx`) - da cau hinh LSP cho tat ca ngon ngu
-- **Neovim** - cau hinh co ban
-- **Vim** - cai dat goi
+### Editors
+- **Helix** (default editor, `$EDITOR=hx`) - LSP configured for all languages
+- **Neovim** - basic configuration
+- **Vim** - package installation
 
-### CLI tools
+### CLI Tools
 ripgrep, fd, fzf, bat, eza, jq, yq, htop, btop, curl, wget, tldr, git-delta, gh (GitHub CLI)
 
-### GUI (chi laptop va vm-fusion)
-- **Niri** - Wayland tiling compositor
-- **Firefox** - trinh duyet
-- **Alacritty / Kitty / Ghostty** - terminal emulator
-- **Fuzzel** - app launcher (Mod+D)
-- **Waybar** - thanh trang thai
-- **PipeWire** - am thanh
+### GUI (laptop and vm-fusion only)
+- **Niri** - Wayland scrollable tiling compositor
+- **Waybar** - status bar and system tray
+- **Firefox** - web browser
+- **Alacritty / Kitty / Ghostty** - terminal emulators
+- **Mako** - notification daemon
+- **PipeWire** - audio system
 
-## Phim tat Niri (chi host GUI)
+## Niri Keybindings (GUI hosts only)
 
-| Phim | Chuc nang |
-|------|-----------|
-| `Mod+Return` | Mo terminal (Alacritty) |
-| `Mod+D` | Mo app launcher (Fuzzel) |
-| `Mod+Q` | Dong cua so |
-| `Mod+F` | Phong to cot |
+| Key | Function |
+|-----|----------|
+| `Mod+Return` | Open terminal (Alacritty) |
+| `Mod+Q` | Close window |
+| `Mod+F` | Maximize column |
 | `Mod+Shift+F` | Fullscreen |
-| `Mod+H/J/K/L` | Di chuyen focus |
-| `Mod+Shift+H/J/K/L` | Di chuyen cua so |
-| `Mod+1-5` | Chuyen workspace |
-| `Mod+Shift+1-5` | Chuyen cua so sang workspace |
-| `Print` | Chup man hinh |
+| `Mod+H/J/K/L` | Move focus (left/down/up/right) |
+| `Mod+Shift+H/J/K/L` | Move window (left/down/up/right) |
+| `Mod+1-5` | Switch to workspace |
+| `Mod+Shift+1-5` | Move window to workspace |
+| `Print` | Take screenshot |
 
-## Mirror
+## Mirrors
 
-Config su dung mirror Trung Quoc (SJTU, Tsinghua) de tang toc do download cho khu vuc Dong Nam A. Thu tu uu tien:
+Configuration uses China mirrors (SJTU, Tsinghua) to speed up downloads for Southeast Asia region. Priority order:
 
 1. `mirror.sjtu.edu.cn` - Shanghai Jiao Tong University
 2. `mirrors.tuna.tsinghua.edu.cn` - Tsinghua University
-3. `cache.nixos.org` - Mirror chinh thuc (du phong)
+3. `cache.nixos.org` - Official mirror (fallback)
 
-## Ghi chu
+## Notes
 
-- User mac dinh: `thangha`
+- Default user: `thangha`
 - Timezone: `Asia/Ho_Chi_Minh`
-- Database khong cai trong NixOS - su dung Docker container
-- `direnv` + `nix-direnv` ho tro per-project `flake.nix` devShell tu dong
-# nix-config
+- Databases are not installed in NixOS - use Docker containers instead
+- `direnv` + `nix-direnv` support automatic per-project `flake.nix` devShell
