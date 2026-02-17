@@ -20,7 +20,8 @@ in
     git
   ];
 
-  programs.ssh.startAgent = true;
+  # Tắt ssh-agent để tránh xung đột với gpg-agent hoặc các agent khác
+  programs.ssh.startAgent = false;
 
   users.users.${username} = {
     isNormalUser = true;
