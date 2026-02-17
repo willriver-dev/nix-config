@@ -5,6 +5,7 @@
     # Noctalia shell (thay waybar, fuzzel, swaybg)
     noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
     pkgs.quickshell
+    pkgs.kdePackages.qtwayland
 
     # Screenshot
     pkgs.grim
