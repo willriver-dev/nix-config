@@ -1,3 +1,7 @@
+output "Virtual-1" {
+    scale 2
+}
+
 input {
     keyboard {
         xkb {
@@ -25,7 +29,8 @@ spawn-at-startup "quickshell" "-c" "noctalia-shell" "--no-duplicate"
 
 binds {
     // Terminal & launcher
-    Mod+Return { spawn "alacritty"; }
+    Mod+Return { spawn "ghostty"; }
+    Mod+D { spawn "quickshell" "ipc" "call" "-c" "noctalia-shell" "Launcher.toggle"; }
     Mod+Q { close-window; }
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
