@@ -18,14 +18,19 @@
       url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    noctalia = {
+      url = "github:noctalia-dev/noctalia-shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixos-wsl, home-manager, niri-flake, ... }:
+  outputs = { self, nixpkgs, nixos-wsl, home-manager, niri-flake, noctalia, ... }:
   let
     mkHost = { hostName, system, modules, enableGui ? false }:
       nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit hostName enableGui niri-flake; };
+        specialArgs = { inherit hostName enableGui niri-flake noctalia; };
         modules = [
           home-manager.nixosModules.home-manager
         ] ++ modules;

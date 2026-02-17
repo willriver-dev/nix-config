@@ -1,4 +1,4 @@
-{ config, pkgs, lib, hostName, enableGui, ... }:
+{ config, pkgs, lib, hostName, enableGui, noctalia ? null, ... }:
 
 let
   username = "thangha";
@@ -32,7 +32,7 @@ in
     useGlobalPkgs = true;
     useUserPackages = true;
     backupFileExtension = "hm-backup";
-    extraSpecialArgs = { inherit enableGui hostName; };
+    extraSpecialArgs = { inherit enableGui hostName noctalia; };
     users.${username} = import ../modules/user;
   };
 }

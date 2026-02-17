@@ -42,6 +42,14 @@
     binutils
     file
     strace
+
+    # Code analysis
+    tokei
+
+    # Network/security
+    openssl
+    nmap
+    netcat-gnu
   ];
 
   home.sessionVariables = {

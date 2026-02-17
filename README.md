@@ -26,18 +26,7 @@ cd ~/workspace/nixos-config
 
 ### Step 3: Configure for each machine
 
-#### Update personal Git information
-
-Edit the file `modules/user/git.nix`:
-
-```nix
-userName = "Your Name";
-userEmail = "your@email.com";
-```
-
 #### Replace hardware config (laptop and vm-fusion only)
-
-Run the following command on the actual machine to get hardware configuration:
 
 ```bash
 sudo nixos-generate-config --show-hardware-config > ~/hardware.nix
@@ -49,152 +38,148 @@ Then copy the content to:
 
 ### Step 4: Build and apply
 
-**Note: All commands below should be run from the `nixos` directory (not the repository root).**
-
 ```bash
 # For WSL
-cd ~/workspace/nixos-config/nixos
-sudo nixos-rebuild switch --flake .#wsl
+sudo nixos-rebuild switch --flake ~/workspace/nixos-config#wsl
 
-# For Laptop (ThinkPad E14 Gen 7 AMD)
-cd ~/workspace/nixos-config/nixos
-sudo nixos-rebuild switch --flake .#laptop
+# For Laptop
+sudo nixos-rebuild switch --flake ~/workspace/nixos-config#laptop
 
-# For VM Fusion (macOS M1)
-cd ~/workspace/nixos-config/nixos
-sudo nixos-rebuild switch --flake .#vm-fusion
+# For VM Fusion
+sudo nixos-rebuild switch --flake ~/workspace/nixos-config#vm-fusion
 ```
 
-### Step 5: After first build
+### Step 5: Copy dotfiles
 
-Setup Rust toolchain (rustup is pre-installed, needs initialization):
+After first build, copy config files to their destinations:
+
+```bash
+# Terminals
+cp -r config/ghostty   ~/.config/ghostty
+cp -r config/alacritty ~/.config/alacritty
+cp -r config/kitty     ~/.config/kitty
+
+# Editors
+cp -r config/helix ~/.config/helix
+cp -r config/nvim  ~/.config/nvim
+
+# Window manager & lock screen (GUI hosts only)
+cp -r config/niri ~/.config/niri
+cp -r config/hypr ~/.config/hypr
+
+# Git
+cp config/git/config ~/.config/git/config
+
+# Bash
+cp config/bash/.bashrc ~/.bashrc
+```
+
+### Step 6: Setup Rust toolchain
 
 ```bash
 rustup default stable
 rustup component add rust-analyzer
 ```
 
-## Shell Aliases
+## Config management
 
-After successful build, you can use the following aliases:
+Nix manages **package installation** only. Application configs live as plain dotfiles in `config/` and are copied manually to `~/.config/`.
 
-| Alias | Command |
-|-------|---------|
-| `rebuild` | `sudo nixos-rebuild switch --flake ...#<host>` |
-| `update` | `nix flake update` - update all flake inputs |
-| `ll` | `eza -la` - detailed file listing |
-| `ls` | `eza` - list files |
-| `cat` | `bat` - view files with syntax highlighting |
-| `tree` | `eza --tree` - directory tree |
-| `dps` | `docker ps` - view running containers |
-| `dco` | `docker compose` |
-
-## System Updates
-
-**Note: Run these commands from the `nixos` directory.**
-
-```bash
-# Update all flake inputs (nixpkgs, home-manager, niri, ...)
-cd ~/workspace/nixos-config/nixos
-update
-
-# Apply changes
-rebuild
-```
-
-Or manually:
-
-```bash
-cd ~/workspace/nixos-config/nixos
-nix flake update
-sudo nixos-rebuild switch --flake .#<host>
-```
+**Exceptions** (still managed by Nix):
+- `firefox` - profile settings via Home Manager
+- `direnv` - bash integration via Home Manager
+- `mako` - notification daemon via Home Manager
 
 ## Directory Structure
 
 ```
 nixos-config/
-├── flake.nix                     # Entry point: defines inputs and 3 hosts
+├── flake.nix                     # Entry point: inputs and 3 hosts
+├── config/                       # Dotfiles (copy to ~/.config/)
+│   ├── alacritty/alacritty.toml
+│   ├── bash/.bashrc
+│   ├── ghostty/config
+│   ├── git/config
+│   ├── helix/
+│   │   ├── config.toml
+│   │   └── languages.toml
+│   ├── hypr/
+│   │   ├── hyprlock.conf
+│   │   └── hypridle.conf
+│   ├── kitty/kitty.conf
+│   ├── niri/config.kdl
+│   └── nvim/init.vim
 ├── hosts/
-│   ├── common.nix                # Common configuration (locale, user, docker, nix)
-│   ├── wsl/default.nix           # WSL-specific configuration
+│   ├── common.nix                # Locale, user, docker, home-manager
+│   ├── wsl/default.nix
 │   ├── laptop/
-│   │   ├── default.nix           # ThinkPad: AMD, battery, bluetooth, GUI
-│   │   └── hardware.nix          # Hardware config (replace with nixos-generate-config)
+│   │   ├── default.nix           # AMD, battery, bluetooth, GUI
+│   │   └── hardware.nix
 │   └── vm-fusion/
-│       ├── default.nix           # VM: VMware guest tools, GUI
-│       └── hardware.nix          # Hardware config (replace with nixos-generate-config)
+│       ├── default.nix           # VMware guest tools, GUI
+│       └── hardware.nix
 ├── modules/
 │   ├── system/
 │   │   ├── docker.nix            # Docker daemon
-│   │   ├── nix-settings.nix      # Flakes, GC, China mirrors
-│   │   └── gui/                  # GUI-enabled hosts only
-│   │       ├── niri.nix          # Niri compositor + greetd
+│   │   ├── nix-settings.nix      # Flakes, GC, mirrors
+│   │   └── gui/
+│   │       ├── niri.nix          # Niri compositor + SDDM
 │   │       ├── audio.nix         # PipeWire
 │   │       └── fonts.nix         # Nerd Fonts
 │   └── user/
-│       ├── default.nix           # Basic CLI tools
-│       ├── shell.nix             # Bash + aliases
-│       ├── editors.nix           # Helix, Neovim, Vim
-│       ├── dev-tools.nix         # Node.js, Go, Python, Rust, C/C++
-│       ├── git.nix               # Git + delta + GitHub CLI
-│       ├── direnv.nix            # direnv for per-project devShell
-│       └── gui/                  # GUI-enabled hosts only
-│           ├── niri.nix          # Keybindings, layout, waybar
-│           ├── terminals.nix     # Alacritty, Kitty, Ghostty
-│           └── firefox.nix       # Firefox
+│       ├── default.nix           # CLI tools (ripgrep, fd, fzf, bat, eza, jq, ...)
+│       ├── shell.nix             # Bash (minimal, for direnv integration)
+│       ├── editors.nix           # Helix, Neovim, Vim (packages only)
+│       ├── dev-tools.nix         # Node.js, Go, Python, Rust, C/C++, tokei, nmap, ...
+│       ├── git.nix               # Git, delta, gh, git-lfs (packages only)
+│       ├── direnv.nix            # direnv + nix-direnv
+│       └── gui/
+│           ├── niri.nix          # Noctalia shell, hyprlock, screenshot tools
+│           ├── terminals.nix     # Alacritty, Kitty, Ghostty (packages only)
+│           └── firefox.nix       # Firefox (Nix config)
 ```
 
-## Pre-installed Tools
+## Pre-installed Packages
 
 ### Programming Languages
 - **Node.js 22** + TypeScript + pnpm
 - **Go** + gopls + golangci-lint + delve
 - **Python 3.12** + pip + virtualenv + pyright + ruff
-- **Rust** (via rustup) - run `rustup default stable` after first boot
-- **C/C++** - gcc, cmake, clang-tools (clangd), gdb
+- **Rust** (via rustup)
+- **C/C++** - gcc, cmake, clang-tools, gdb
 
 ### Editors
-- **Helix** (default editor, `$EDITOR=hx`) - LSP configured for all languages
-- **Neovim** - basic configuration
-- **Vim** - package installation
+- **Helix** - config in `config/helix/`
+- **Neovim** - config in `config/nvim/`
+- **Vim**
 
 ### CLI Tools
-ripgrep, fd, fzf, bat, eza, jq, yq, htop, btop, curl, wget, tldr, git-delta, gh (GitHub CLI)
+ripgrep, fd, fzf, bat, eza, jq, yq, htop, btop, curl, wget, tldr, tokei, git-delta, gh
+
+### Network / Security
+openssl, nmap, netcat
 
 ### GUI (laptop and vm-fusion only)
 - **Niri** - Wayland scrollable tiling compositor
-- **Waybar** - status bar and system tray
+- **Noctalia Shell** - desktop shell (panel, launcher, wallpaper)
+- **SDDM** - display manager (sddm-astronaut-theme)
+- **Hyprlock / Hypridle** - screen lock & idle management
 - **Firefox** - web browser
 - **Alacritty / Kitty / Ghostty** - terminal emulators
 - **Mako** - notification daemon
 - **PipeWire** - audio system
 
-## Niri Keybindings (GUI hosts only)
-
-| Key | Function |
-|-----|----------|
-| `Mod+Return` | Open terminal (Alacritty) |
-| `Mod+Q` | Close window |
-| `Mod+F` | Maximize column |
-| `Mod+Shift+F` | Fullscreen |
-| `Mod+H/J/K/L` | Move focus (left/down/up/right) |
-| `Mod+Shift+H/J/K/L` | Move window (left/down/up/right) |
-| `Mod+1-5` | Switch to workspace |
-| `Mod+Shift+1-5` | Move window to workspace |
-| `Print` | Take screenshot |
-
 ## Mirrors
 
-Configuration uses China mirrors (SJTU, Tsinghua) to speed up downloads for Southeast Asia region. Priority order:
+China mirrors (SJTU, Tsinghua) for faster downloads in Southeast Asia:
 
-1. `mirror.sjtu.edu.cn` - Shanghai Jiao Tong University
-2. `mirrors.tuna.tsinghua.edu.cn` - Tsinghua University
-3. `cache.nixos.org` - Official mirror (fallback)
+1. `mirror.sjtu.edu.cn`
+2. `mirrors.tuna.tsinghua.edu.cn`
+3. `cache.nixos.org` (fallback)
 
 ## Notes
 
 - Default user: `thangha`
 - Timezone: `Asia/Ho_Chi_Minh`
-- Databases are not installed in NixOS - use Docker containers instead
-- `direnv` + `nix-direnv` support automatic per-project `flake.nix` devShell
+- Databases: use Docker containers, not installed in NixOS
+- `direnv` + `nix-direnv`: automatic per-project `flake.nix` devShell
