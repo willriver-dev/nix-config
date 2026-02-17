@@ -30,7 +30,7 @@ spawn-at-startup "quickshell" "-c" "noctalia-shell" "--no-duplicate"
 binds {
     // Terminal & launcher
     Mod+Return { spawn "ghostty"; }
-    Mod+D { spawn "quickshell" "ipc" "call" "-c" "noctalia-shell" "Launcher.toggle"; }
+    Mod+D { spawn "quickshell" "-c" "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
     Mod+Q { close-window; }
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
