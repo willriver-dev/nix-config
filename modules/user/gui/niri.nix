@@ -1,26 +1,26 @@
-{ pkgs, noctalia, ... }:
+{ pkgs, ... }:
 
 {
-  home.packages = [
-    # Noctalia shell (thay waybar, fuzzel, swaybg)
-    noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default
-    pkgs.quickshell
-    pkgs.kdePackages.qtwayland
+  home.packages = with pkgs; [
+    # Bar & launcher
+    waybar
+    fuzzel
+    swaybg
 
     # Screenshot
-    pkgs.grim
-    pkgs.slurp
-    pkgs.wl-clipboard
+    grim
+    slurp
+    wl-clipboard
 
     # Lock/idle
-    pkgs.hyprlock
-    pkgs.hypridle
+    hyprlock
+    hypridle
 
     # Notifications
-    pkgs.libnotify
+    libnotify
   ];
 
-  # Mako vẫn dùng Nix config
+  # Mako notification daemon
   services.mako = {
     enable = true;
     settings.default-timeout = 5000;

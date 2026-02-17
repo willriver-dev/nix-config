@@ -62,7 +62,7 @@ animations {
 }
 
 // Startup
-spawn-at-startup "quickshell" "-c" "noctalia-shell" "--no-duplicate"
+spawn-at-startup "waybar"
 
 // Window rules
 window-rule {
@@ -74,7 +74,7 @@ window-rule {
 binds {
     // Terminal & launcher
     Mod+Return { spawn "ghostty"; }
-    Mod+D { spawn "quickshell" "-c" "noctalia-shell" "ipc" "call" "launcher" "toggle"; }
+    Mod+D { spawn "fuzzel"; }
 
     // Window management
     Mod+Q { close-window; }
