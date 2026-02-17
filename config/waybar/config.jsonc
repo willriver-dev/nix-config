@@ -1,7 +1,7 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 32,
+  "height": 34,
   "spacing": 8,
 
   "modules-left": ["niri/workspaces"],
@@ -9,33 +9,29 @@
   "modules-right": ["cpu", "memory", "network", "tray"],
 
   "niri/workspaces": {
-    "format": "{icon}",
-    "format-icons": {
-      "active": "",
-      "default": ""
-    }
+    "format": "{index}"
   },
 
   "clock": {
-    "format": "  {:%H:%M}",
-    "format-alt": "  {:%a %d/%m/%Y  %H:%M}",
+    "format": "\uf073  {:%H:%M}",
+    "format-alt": "\uf073  {:%a %d/%m/%Y  %H:%M}",
     "tooltip-format": "<tt>{calendar}</tt>"
   },
 
   "cpu": {
-    "format": "  {usage}%",
+    "format": "\uf2db  {usage}%",
     "interval": 5
   },
 
   "memory": {
-    "format": "  {percentage}%",
+    "format": "\uf538  {percentage}%",
     "interval": 5
   },
 
   "network": {
-    "format-wifi": "  {signalStrength}%",
-    "format-ethernet": "  {ifname}",
-    "format-disconnected": "  off",
+    "format-wifi": "\uf1eb  {signalStrength}%",
+    "format-ethernet": "\uf796  {ifname}",
+    "format-disconnected": "\uf127  off",
     "tooltip-format": "{ifname}: {ipaddr}/{cidr}"
   },
 

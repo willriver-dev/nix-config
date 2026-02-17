@@ -1,6 +1,8 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
+  home.packages = [ pkgs.chromium ];
+
   programs.firefox = {
     enable = true;
 
