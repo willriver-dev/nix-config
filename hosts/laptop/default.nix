@@ -56,7 +56,6 @@ in
 
   # Backlight control
   programs.light.enable = true;
-  users.users.${username}.extraGroups = [ "video" ];
 
   # Printing
   services.printing.enable = true;
