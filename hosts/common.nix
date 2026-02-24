@@ -1,4 +1,4 @@
-{ config, pkgs, lib, hostName, enableGui, noctalia ? null, ... }:
+{ config, pkgs, lib, hostName, enableGui, dms, ... }:
 
 let
   username = "thangha";
@@ -33,7 +33,8 @@ in
     useGlobalPkgs = true;
     useUserPackages = true;
     backupFileExtension = "hm-backup";
-    extraSpecialArgs = { inherit enableGui hostName noctalia; };
+    extraSpecialArgs = { inherit enableGui hostName; };
+    sharedModules = lib.optionals enableGui [ dms.homeModules.dank-material-shell ];
     users.${username} = import ../modules/user;
   };
 }

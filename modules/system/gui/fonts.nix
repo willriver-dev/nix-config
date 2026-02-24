@@ -8,6 +8,7 @@
       nerd-fonts.jetbrains-mono
       nerd-fonts.fira-code
       nerd-fonts.hack
+      nerd-fonts.lilex
 
       inter
       noto-fonts
@@ -19,7 +20,7 @@
       defaultFonts = {
         serif = [ "Noto Serif" ];
         sansSerif = [ "Inter" "Noto Sans" ];
-        monospace = [ "JetBrainsMono Nerd Font" ];
+        monospace = [ "Lilex Nerd Font" "JetBrainsMono Nerd Font" ];
         emoji = [ "Noto Color Emoji" ];
       };
     };
