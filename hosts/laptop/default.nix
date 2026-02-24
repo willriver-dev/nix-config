@@ -20,7 +20,6 @@ in
 
   # Networking
   networking.networkmanager.enable = true;
-  users.users.${username}.extraGroups = [ "networkmanager" ];
 
   # Bluetooth
   hardware.bluetooth = {
@@ -56,7 +55,6 @@ in
 
   # Backlight control
   programs.light.enable = true;
-  users.users.${username}.extraGroups = [ "video" ];
 
   # Printing
   services.printing.enable = true;

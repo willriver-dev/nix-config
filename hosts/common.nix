@@ -25,7 +25,7 @@ in
 
   users.users.${username} = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "docker" ];
+    extraGroups = [ "wheel" "docker" "video" "networkmanager" ];
     shell = pkgs.bash;
   };
 
